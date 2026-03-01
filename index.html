@@ -1,0 +1,441 @@
+<!DOCTYPE html>
+<html lang="en">
+
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>ExpenseFlow - Smart Expense Tracker</title>
+    <link rel="stylesheet" href="styles/style.css">
+    <link rel="stylesheet" href="styles/glassmorphism.css">
+    <link href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.0/css/all.min.css" rel="stylesheet">
+</head>
+
+<body>
+    <!-- Navigation -->
+    <nav class="glass-nav">
+        <div class="nav-container">
+            <div class="logo">
+                <i class="fas fa-chart-line"></i>
+                ExpenseFlow
+            </div>
+            <div class="nav-links">
+                <a href="#dashboard" class="nav-link active">
+                    <i class="fas fa-home"></i> Dashboard
+                </a>
+                <a href="#expenses" class="nav-link">
+                    <i class="fas fa-receipt"></i> Expenses
+                </a>
+                <a href="#friends" class="nav-link">
+                    <i class="fas fa-users"></i> Friends
+                </a>
+                <a href="#reports" class="nav-link">
+                    <i class="fas fa-chart-bar"></i> Reports
+                </a>
+                <a href="#settings" class="nav-link">
+                    <i class="fas fa-cog"></i> Settings
+                </a>
+            </div>
+            <div class="mobile-menu">
+                <i class="fas fa-bars"></i>
+            </div>
+        </div>
+    </nav>
+
+
+
+    <!-- Main Content -->
+    <main class="main-container">
+        <!-- Dashboard Section -->
+        <section id="dashboard" class="section active">
+            <div class="section-header">
+                <h2>Dashboard</h2>
+                <div class="header-actions">
+                    <button class="btn-secondary" id="export-btn">
+                        <i class="fas fa-download"></i> Export
+                    </button>
+                    <button class="btn-primary" id="add-income-btn">
+                        <i class="fas fa-plus"></i> Add Income
+                    </button>
+                </div>
+            </div>
+
+            <div class="dashboard-grid">
+                <!-- Current Month Summary -->
+                <div class="glass-card summary-card">
+                    <h3><i class="fas fa-calendar-alt"></i> Current Month</h3>
+                    <div class="stats-grid">
+                        <div class="stat-item">
+                            <span class="stat-label">Total Income</span>
+                            <span class="stat-value income">₹0</span>
+                        </div>
+                        <div class="stat-item">
+                            <span class="stat-label">Total Expenses</span>
+                            <span class="stat-value expense">₹0</span>
+                        </div>
+                        <div class="stat-item highlight">
+                            <span class="stat-label">Balance</span>
+                            <span class="stat-value balance">₹0</span>
+                        </div>
+                        <div class="stat-item">
+                            <span class="stat-label">Daily Average</span>
+                            <span class="stat-value average">₹0</span>
+                        </div>
+                    </div>
+                    <!-- Budget Progress Bar -->
+                    <div id="budget-container" class="budget-container" style="display: none;">
+                        <div class="budget-header">
+                            <span>Monthly Budget</span>
+                            <span id="budget-percent">0%</span>
+                        </div>
+                        <div class="progress-bar">
+                            <div id="budget-progress" class="progress-fill"></div>
+                        </div>
+                        <div class="budget-footer">
+                            <span id="budget-remaining">Remaining: ₹0</span>
+                            <span id="budget-total">Limit: ₹0</span>
+                        </div>
+                    </div>
+                </div>
+
+                <!-- Quick Add Expense -->
+                <div class="glass-card quick-add">
+                    <h3><i class="fas fa-bolt"></i> Quick Add Expense</h3>
+                    <form id="quick-expense-form" class="quick-form">
+                        <div class="form-group">
+                            <input type="number" id="amount" name="amount" placeholder="Amount" required step="0.01"
+                                min="0">
+                            <select id="category" name="category" required>
+                                <option value="">Select Category</option>
+                            </select>
+                        </div>
+                        <div class="form-group">
+                            <input type="text" id="description" name="description" placeholder="Description (optional)">
+                            <input type="date" id="date" name="date" value="">
+                        </div>
+                        <div class="form-group">
+                            <select id="friend" name="friend" class="friend-select">
+                                <option value="">Not with friend</option>
+                            </select>
+                            <button type="submit" class="btn-primary">
+                                <i class="fas fa-plus"></i> Add Expense
+                            </button>
+                        </div>
+                    </form>
+                </div>
+
+                <!-- Monthly Comparison Chart -->
+                <div class="glass-card chart-card">
+                    <h3><i class="fas fa-chart-line"></i> Monthly Comparison</h3>
+                    <div class="chart-container">
+                        <canvas id="monthlyChart" width="400" height="200"></canvas>
+                    </div>
+                </div>
+
+                <!-- Category Breakdown -->
+                <div class="glass-card category-breakdown">
+                    <h3><i class="fas fa-pie-chart"></i> Spending by Category</h3>
+                    <div class="chart-container">
+                        <canvas id="categoryChart" width="400" height="200"></canvas>
+                    </div>
+                </div>
+
+                <!-- Recent Expenses -->
+                <div class="glass-card recent-expenses full-width">
+                    <div class="card-header">
+                        <h3><i class="fas fa-history"></i> Recent Expenses</h3>
+                        <button class="btn-text" id="view-all-expenses">View All</button>
+                    </div>
+                    <div id="recent-expenses-list" class="expenses-list">
+                        <div class="empty-state">
+                            <i class="fas fa-receipt"></i>
+                            <p>No expenses yet. Add your first expense!</p>
+                        </div>
+                    </div>
+                </div>
+
+                <!-- Recurring Expenses Alert -->
+                <div class="glass-card recurring-alert full-width">
+                    <h3><i class="fas fa-redo-alt"></i> Recurring Expenses</h3>
+                    <div id="recurring-list" class="recurring-list">
+                        <div class="empty-state">
+                            <i class="fas fa-clock"></i>
+                            <p>No recurring expenses detected yet</p>
+                        </div>
+                    </div>
+                </div>
+            </div>
+        </section>
+
+        <!-- Expenses Section -->
+        <section id="expenses" class="section">
+            <div class="section-header">
+                <h2>All Expenses</h2>
+                <div class="header-actions">
+                    <div class="filter-group">
+                        <select id="expense-filter-month">
+                            <option value="">All Months</option>
+                        </select>
+                        <select id="expense-filter-category">
+                            <option value="">All Categories</option>
+                        </select>
+                    </div>
+                    <button class="btn-primary" id="add-expense-btn">
+                        <i class="fas fa-plus"></i> Add Expense
+                    </button>
+                </div>
+            </div>
+
+            <div class="expenses-full-container">
+                <div class="expenses-summary glass-card">
+                    <h3>Expense Summary</h3>
+                    <div class="summary-stats">
+                        <div class="summary-stat">
+                            <span class="stat-number" id="total-expenses-count">0</span>
+                            <span class="stat-label">Total Expenses</span>
+                        </div>
+                        <div class="summary-stat">
+                            <span class="stat-number" id="total-expenses-amount">₹0</span>
+                            <span class="stat-label">Total Amount</span>
+                        </div>
+                        <div class="summary-stat">
+                            <span class="stat-number" id="avg-expense">₹0</span>
+                            <span class="stat-label">Average per Expense</span>
+                        </div>
+                    </div>
+                </div>
+
+                <div id="all-expenses-list" class="all-expenses-list">
+                    <!-- Expenses will be loaded here -->
+                </div>
+            </div>
+        </section>
+
+        <!-- Friends Section -->
+        <section id="friends" class="section">
+            <div class="section-header">
+                <h2>Friends Tracking</h2>
+                <button class="btn-primary" id="add-friend-btn">
+                    <i class="fas fa-user-plus"></i> Add Friend
+                </button>
+            </div>
+
+            <div class="friends-container">
+                <div class="friends-summary glass-card">
+                    <h3>Friends Summary</h3>
+                    <div class="friends-stats">
+                        <div class="friend-stat">
+                            <span class="stat-number" id="total-friends">0</span>
+                            <span class="stat-label">Total Friends</span>
+                        </div>
+                        <div class="friend-stat">
+                            <span class="stat-number" id="total-owed">₹0</span>
+                            <span class="stat-label">You are Owed</span>
+                        </div>
+                        <div class="friend-stat">
+                            <span class="stat-number" id="total-owe">₹0</span>
+                            <span class="stat-label">You Owe</span>
+                        </div>
+                    </div>
+                </div>
+
+                <div id="friends-list" class="friends-list">
+                    <!-- Friends will be loaded here -->
+                </div>
+
+                <div class="friend-transactions glass-card">
+                    <h3>Recent Friend Transactions</h3>
+                    <div id="friend-transactions-list">
+                        <!-- Friend transactions will be loaded here -->
+                    </div>
+                </div>
+            </div>
+        </section>
+
+        <!-- Reports Section -->
+        <section id="reports" class="section">
+            <div class="section-header">
+                <h2>Reports & Analytics</h2>
+                <div class="header-actions">
+                    <button class="btn-secondary" id="export-pdf-btn">
+                        <i class="fas fa-file-pdf"></i> Export PDF
+                    </button>
+                    <button class="btn-secondary" id="export-excel-btn">
+                        <i class="fas fa-file-excel"></i> Export Excel
+                    </button>
+                </div>
+            </div>
+
+            <div class="reports-grid">
+                <div class="glass-card full-width">
+                    <h3>Monthly Expense Trends</h3>
+                    <div class="chart-container">
+                        <canvas id="yearlyTrendChart" width="800" height="300"></canvas>
+                    </div>
+                </div>
+
+                <div class="glass-card">
+                    <h3>Category Distribution</h3>
+                    <div class="chart-container">
+                        <canvas id="categoryPieChart" width="400" height="300"></canvas>
+                    </div>
+                </div>
+
+                <div class="glass-card">
+                    <h3>Spending Habits</h3>
+                    <div class="chart-container">
+                        <canvas id="spendingHabitsChart" width="400" height="300"></canvas>
+                    </div>
+                </div>
+
+                <div class="glass-card full-width">
+                    <h3>Export Options</h3>
+                    <div class="export-options">
+                        <div class="export-option">
+                            <h4>Monthly Report</h4>
+                            <p>Detailed breakdown of expenses by month</p>
+                            <button class="btn-secondary" id="export-pdf-report-btn">Export PDF</button>
+                        </div>
+                        <div class="export-option">
+                            <h4>Category Report</h4>
+                            <p>Spending analysis by categories</p>
+                            <button class="btn-secondary" id="export-excel-report-btn">Export Excel</button>
+                        </div>
+                        <div class="export-option">
+                            <h4>Complete Data</h4>
+                            <p>All your expense data</p>
+                            <button class="btn-secondary" id="export-json-report-btn">Export JSON</button>
+                        </div>
+                    </div>
+                </div>
+            </div>
+        </section>
+
+        <!-- Settings Section -->
+        <section id="settings" class="section">
+            <div class="section-header">
+                <h2>Settings & Preferences</h2>
+            </div>
+
+            <div class="settings-grid">
+                <div class="glass-card">
+                    <h3>General Settings</h3>
+                    <div class="setting-item">
+                        <label>Currency</label>
+                        <select id="currency-select">
+                            <option value="₹">Indian Rupee (₹)</option>
+                            <option value="$">US Dollar ($)</option>
+                            <option value="€">Euro (€)</option>
+                            <option value="£">British Pound (£)</option>
+                        </select>
+                    </div>
+                    <div class="setting-item">
+                        <label>Date Format</label>
+                        <select id="date-format">
+                            <option value="dd/mm/yyyy">DD/MM/YYYY</option>
+                            <option value="mm/dd/yyyy">MM/DD/YYYY</option>
+                            <option value="yyyy-mm-dd">YYYY-MM-DD</option>
+                        </select>
+                    </div>
+                    <div class="setting-item">
+                        <label>Theme</label>
+                        <select id="theme-select">
+                            <option value="dark">Dark</option>
+                            <option value="light">Light</option>
+                            <option value="auto">Auto</option>
+                        </select>
+                    </div>
+                </div>
+
+                <div class="glass-card">
+                    <h3>Data Management</h3>
+                    <div class="setting-item">
+                        <button class="btn-secondary full-width" id="backup-data">
+                            <i class="fas fa-cloud-upload"></i> Backup to Cloud
+                        </button>
+                    </div>
+                    <div class="setting-item">
+                        <button class="btn-secondary full-width" id="restore-data">
+                            <i class="fas fa-cloud-download"></i> Restore from Cloud
+                        </button>
+                    </div>
+                    <div class="setting-item">
+                        <button class="btn-secondary full-width" id="export-all">
+                            <i class="fas fa-download"></i> Export All Data
+                        </button>
+                    </div>
+                    <div class="setting-item">
+                        <button class="btn-danger full-width" id="reset-data">
+                            <i class="fas fa-trash"></i> Reset All Data
+                        </button>
+                    </div>
+                </div>
+
+                <div class="glass-card">
+                    <h3>Categories Management</h3>
+                    <div id="categories-list">
+                        <!-- Categories will be listed here -->
+                    </div>
+                    <button class="btn-primary full-width" id="add-category">
+                        <i class="fas fa-plus"></i> Add Custom Category
+                    </button>
+                </div>
+
+                <div class="glass-card">
+                    <h3>Budget Settings</h3>
+                    <div class="setting-item">
+                        <label>Monthly Budget</label>
+                        <input type="number" id="monthly-budget" placeholder="Enter monthly budget">
+                    </div>
+                    <div class="setting-item">
+                        <label>Budget Alerts</label>
+                        <select id="budget-alerts">
+                            <option value="80">Notify at 80% of budget</option>
+                            <option value="90">Notify at 90% of budget</option>
+                            <option value="100">Notify at 100% of budget</option>
+                        </select>
+                    </div>
+                </div>
+            </div>
+        </section>
+
+
+        <!-- Modal for adding income -->
+        <div id="income-modal" class="modal">
+            <div class="modal-content glass-card">
+                <div class="modal-header">
+                    <h3>Add Monthly Income</h3>
+                    <button class="close-modal">&times;</button>
+                </div>
+                <form id="income-form">
+                    <div class="form-group">
+                        <label>Month</label>
+                        <input type="month" id="income-month" required>
+                    </div>
+                    <div class="form-group">
+                        <label>Income Amount</label>
+                        <input type="number" id="income-amount" required step="0.01" min="0">
+                    </div>
+                    <button type="submit" class="btn-primary">Save Income</button>
+                </form>
+            </div>
+        </div>
+
+        <!-- Floating Action Button for Mobile -->
+        <button class="fab" id="mobile-fab">
+            <i class="fas fa-plus"></i>
+        </button>
+
+        <!-- Scripts -->
+        <script src="https://cdn.jsdelivr.net/npm/chart.js"></script>
+        <script src="https://cdnjs.cloudflare.com/ajax/libs/jspdf/2.5.1/jspdf.umd.min.js"></script>
+        <script
+            src="https://cdnjs.cloudflare.com/ajax/libs/jspdf-autotable/3.5.31/jspdf.plugin.autotable.min.js"></script>
+        <script src="scripts/storage.js"></script>
+        <script src="scripts/recurring.js"></script>
+        <script src="scripts/charts.js"></script>
+        <script src="scripts/export.js"></script>
+        <script src="scripts/friends.js"></script>
+        <script src="scripts/app.js"></script>
+</body>
+
+</html>
