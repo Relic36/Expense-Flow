@@ -2,7 +2,11 @@
 class FriendsManager {
     static init() {
         this.friends = StorageManager.loadFriends();
-        this.currencySymbol = localStorage.getItem('expenseFlow_currency') || '₹';
+        try {
+            this.currencySymbol = localStorage.getItem('expenseFlow_currency') || '₹';
+        } catch (e) {
+            this.currencySymbol = '₹';
+        }
         this.updateFriendsList();
 
         const addFriendBtn = document.getElementById('add-friend-btn');

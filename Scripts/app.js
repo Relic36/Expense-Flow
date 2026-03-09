@@ -23,7 +23,13 @@ class ExpenseTracker {
     constructor() {
         this.expenses = StorageManager.loadExpenses();
         this.monthlyIncome = StorageManager.loadMonthlyIncome();
-        this.currencySymbol = localStorage.getItem('expenseFlow_currency') || '₹';
+
+        try {
+            this.currencySymbol = localStorage.getItem('expenseFlow_currency') || '₹';
+        } catch (e) {
+            this.currencySymbol = '₹';
+        }
+
         this.budget = StorageManager.loadBudget();
         this.currentSection = 'dashboard';
 
@@ -149,7 +155,10 @@ class ExpenseTracker {
                 this.setTheme(e.target.value);
             });
             // load saved theme
-            const savedTheme = localStorage.getItem('expenseFlow_theme') || 'auto';
+            let savedTheme = 'auto';
+            try {
+                savedTheme = localStorage.getItem('expenseFlow_theme') || 'auto';
+            } catch (e) { }
             themeSelect.value = savedTheme;
             this.setTheme(savedTheme);
         }
@@ -220,7 +229,9 @@ class ExpenseTracker {
         }
 
         this.currencySymbol = newSymbol;
-        localStorage.setItem('expenseFlow_currency', newSymbol);
+        try {
+            localStorage.setItem('expenseFlow_currency', newSymbol);
+        } catch (e) { }
 
         StorageManager.saveExpenses(this.expenses);
         StorageManager.saveMonthlyIncome(this.monthlyIncome);
@@ -392,7 +403,11 @@ class ExpenseTracker {
     }
 
     checkBudgetAlert(spent, percent) {
-        const lastAlert = sessionStorage.getItem('last_budget_alert');
+        let lastAlert = null;
+        try {
+            lastAlert = sessionStorage.getItem('last_budget_alert');
+        } catch (e) { }
+
         let currentLevel = '';
 
         if (percent >= 100) currentLevel = '100';
@@ -403,9 +418,9 @@ class ExpenseTracker {
                 `Alert: You have exceeded your monthly budget!` :
                 `Warning: You have used ${currentLevel}% of your monthly budget.`;
             this.showNotification(msg, percent >= 100 ? 'error' : 'info');
-            sessionStorage.setItem('last_budget_alert', currentLevel);
+            try { sessionStorage.setItem('last_budget_alert', currentLevel); } catch (e) { }
         } else if (!currentLevel) {
-            sessionStorage.removeItem('last_budget_alert');
+            try { sessionStorage.removeItem('last_budget_alert'); } catch (e) { }
         }
     }
 
@@ -801,7 +816,7 @@ class ExpenseTracker {
     }
 
     setTheme(theme) {
-        localStorage.setItem('expenseFlow_theme', theme);
+        try { localStorage.setItem('expenseFlow_theme', theme); } catch (e) { }
         if (theme === 'dark') {
             document.body.classList.add('dark-theme');
             document.body.classList.remove('light-theme');

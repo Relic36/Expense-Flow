@@ -1,43 +1,61 @@
 // Storage Manager - Handles all localStorage operations
 class StorageManager {
+    static safeGetItem(key, defaultValue) {
+        try {
+            const value = localStorage.getItem(key);
+            return value ? JSON.parse(value) : defaultValue;
+        } catch (e) {
+            console.warn(`localStorage blocked or unavailable for key: ${key}`);
+            return defaultValue;
+        }
+    }
+
+    static safeSetItem(key, value) {
+        try {
+            localStorage.setItem(key, JSON.stringify(value));
+        } catch (e) {
+            console.warn(`localStorage blocked or unavailable for key: ${key}`);
+        }
+    }
+
     static saveExpenses(expenses) {
-        localStorage.setItem('expenseFlow_expenses', JSON.stringify(expenses));
+        this.safeSetItem('expenseFlow_expenses', expenses);
     }
 
     static loadExpenses() {
-        return JSON.parse(localStorage.getItem('expenseFlow_expenses') || '[]');
+        return this.safeGetItem('expenseFlow_expenses', []);
     }
 
     static saveMonthlyIncome(incomeData) {
-        localStorage.setItem('expenseFlow_monthlyIncome', JSON.stringify(incomeData));
+        this.safeSetItem('expenseFlow_monthlyIncome', incomeData);
     }
 
     static loadMonthlyIncome() {
-        return JSON.parse(localStorage.getItem('expenseFlow_monthlyIncome') || '{}');
+        return this.safeGetItem('expenseFlow_monthlyIncome', {});
     }
 
     static saveFriends(friends) {
-        localStorage.setItem('expenseFlow_friends', JSON.stringify(friends));
+        this.safeSetItem('expenseFlow_friends', friends);
     }
 
     static loadFriends() {
-        return JSON.parse(localStorage.getItem('expenseFlow_friends') || '[]');
+        return this.safeGetItem('expenseFlow_friends', []);
     }
 
     static saveRecurringExpenses(expenses) {
-        localStorage.setItem('expenseFlow_recurring', JSON.stringify(expenses));
+        this.safeSetItem('expenseFlow_recurring', expenses);
     }
 
     static loadRecurringExpenses() {
-        return JSON.parse(localStorage.getItem('expenseFlow_recurring') || '[]');
+        return this.safeGetItem('expenseFlow_recurring', []);
     }
 
     static saveBudget(budgetData) {
-        localStorage.setItem('expenseFlow_budget', JSON.stringify(budgetData));
+        this.safeSetItem('expenseFlow_budget', budgetData);
     }
 
     static loadBudget() {
-        return JSON.parse(localStorage.getItem('expenseFlow_budget') || '{"amount": 0, "threshold": 80}');
+        return this.safeGetItem('expenseFlow_budget', { amount: 0, threshold: 80 });
     }
 
     // Export all data for backup
@@ -62,9 +80,13 @@ class StorageManager {
 
     // Clear all data
     static clearAllData() {
-        localStorage.removeItem('expenseFlow_expenses');
-        localStorage.removeItem('expenseFlow_monthlyIncome');
-        localStorage.removeItem('expenseFlow_friends');
-        localStorage.removeItem('expenseFlow_recurring');
+        try {
+            localStorage.removeItem('expenseFlow_expenses');
+            localStorage.removeItem('expenseFlow_monthlyIncome');
+            localStorage.removeItem('expenseFlow_friends');
+            localStorage.removeItem('expenseFlow_recurring');
+        } catch (e) {
+            console.warn('localStorage clear failed', e);
+        }
     }
 }
